@@ -1,0 +1,241 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Categories - Admin{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="admin-header">
+        <h1 class="page-title">Categories</h1>
+        <div class="admin-nav">
+            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">← Dashboard</a>
+            <a href="{{ url_for('admin.category_new') }}" class="btn btn-primary">+ New Category</a>
+        </div>
+    </div>
+
+    {% if categories %}
+        <div class="categories-grid">
+            {% for category in categories %}
+            <div class="category-card-admin">
+                <div class="category-card-header">
+                    <h3 class="category-card-title">{{ category.name }}</h3>
+                    <span class="category-order-badge">Order: {{ category.order }}</span>
+                </div>
+                
+                {% if category.description %}
+                <p class="category-card-description">{{ category.description }}</p>
+                {% endif %}
+                
+                <div class="category-card-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">{{ category.articles.filter_by(is_published=True).count() }}</span>
+                        <span class="stat-label">Articles</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">{{ category.subcategories.count() }}</span>
+                        <span class="stat-label">Subcategories</span>
+                    </div>
+                </div>
+                
+                <div class="category-card-actions">
+                    <a href="{{ url_for('main.category', slug=category.slug) }}" 
+                       class="btn-icon" target="_blank" title="View">
+                        <span class="icon">👁️</span>
+                    </a>
+                    <a href="{{ url_for('admin.category_edit', id=category.id) }}" 
+                       class="btn-icon" title="Edit">
+                        <span class="icon">✏️</span>
+                    </a>
+                    <form method="POST" action="{{ url_for('admin.category_delete', id=category.id) }}" 
+                          style="display: inline;" 
+                          onsubmit="return confirm('Are you sure you want to delete this category?');">
+                        <button type="submit" class="btn-icon btn-icon-danger" title="Delete">
+                            <span class="icon">🗑️</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">📁</div>
+            <h2>No categories yet</h2>
+            <p>Create your first category to start organizing your content</p>
+            <a href="{{ url_for('admin.category_new') }}" class="btn btn-primary">+ Create First Category</a>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-2xl);
+    padding-bottom: var(--spacing-lg);
+    border-bottom: 2px solid var(--border-color);
+    flex-wrap: wrap;
+    gap: var(--spacing-lg);
+}
+
+.page-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.admin-nav {
+    display: flex;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+}
+
+.categories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+.category-card-admin {
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.category-card-admin:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--accent-blue);
+}
+
+.category-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+}
+
+.category-card-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    flex: 1;
+}
+
+.category-order-badge {
+    background: var(--tertiary-bg);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.category-card-description {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0;
+}
+
+.category-card-stats {
+    display: flex;
+    gap: var(--spacing-xl);
+    padding: var(--spacing-md) 0;
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.stat-number {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--accent-blue-light);
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.category-card-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+    justify-content: center;
+}
+
+.btn-icon {
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--tertiary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 1.25rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 42px;
+    min-height: 42px;
+}
+
+.btn-icon:hover {
+    background: var(--accent-blue);
+    border-color: var(--accent-blue);
+    transform: scale(1.1);
+}
+
+.btn-icon-danger:hover {
+    background: var(--error);
+    border-color: var(--error);
+}
+
+.empty-state {
+    text-align: center;
+    padding: var(--spacing-2xl);
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    margin-top: var(--spacing-xl);
+}
+
+.empty-icon {
+    font-size: 5rem;
+    margin-bottom: var(--spacing-lg);
+}
+
+.empty-state h2 {
+    font-size: 2rem;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.empty-state p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    margin-bottom: var(--spacing-xl);
+}
+
+@media (max-width: 768px) {
+    .categories-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}

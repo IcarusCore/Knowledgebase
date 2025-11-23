@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}{{ subcategory.name }} - {{ category.name }} - Knowledge Base{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="breadcrumb">
+        <a href="{{ url_for('main.index') }}">Home</a>
+        <span class="separator">›</span>
+        <a href="{{ url_for('main.category', slug=category.slug) }}">{{ category.name }}</a>
+        <span class="separator">›</span>
+        <span>{{ subcategory.name }}</span>
+    </div>
+
+    <div class="page-header">
+        <h1 class="page-title">{{ subcategory.name }}</h1>
+        {% if subcategory.description %}
+            <p class="page-description">{{ subcategory.description }}</p>
+        {% endif %}
+    </div>
+
+    <!-- Articles -->
+    {% if articles %}
+    <section class="articles-section">
+        <div class="articles-list">
+            {% for article in articles %}
+                <a href="{{ url_for('main.article', slug=article.slug) }}" class="article-item">
+                    <div class="article-item-content">
+                        <h3 class="article-item-title">{{ article.title }}</h3>
+                        {% if article.summary %}
+                            <p class="article-item-summary">{{ article.summary }}</p>
+                        {% endif %}
+                        <div class="article-item-meta">
+                            <span class="article-date">{{ article.created_at.strftime('%b %d, %Y') }}</span>
+                        </div>
+                    </div>
+                    <div class="article-arrow">→</div>
+                </a>
+            {% endfor %}
+        </div>
+    </section>
+    {% else %}
+        <div class="empty-state">
+            <p>No articles available in this subcategory yet.</p>
+            <a href="{{ url_for('main.category', slug=category.slug) }}" class="btn btn-primary">
+                ← Back to {{ category.name }}
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,305 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Articles - Admin{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="admin-header">
+        <h1 class="page-title">Articles</h1>
+        <div class="admin-nav">
+            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">← Dashboard</a>
+            <a href="{{ url_for('admin.article_new') }}" class="btn btn-primary">+ New Article</a>
+        </div>
+    </div>
+
+    {% if articles.items %}
+        <div class="articles-grid-admin">
+            {% for article in articles.items %}
+            <div class="article-card-admin">
+                <div class="article-card-header">
+                    <h3 class="article-card-title">
+                        {{ article.title }}
+                        {% if article.is_featured %}
+                            <span class="featured-icon" title="Featured">⭐</span>
+                        {% endif %}
+                    </h3>
+                    <div class="article-badges">
+                        <span class="status-badge status-{{ 'published' if article.is_published else 'draft' }}">
+                            {{ 'Published' if article.is_published else 'Draft' }}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="article-card-meta">
+                    <span class="meta-tag">📁 {{ article.category.name }}</span>
+                    {% if article.subcategory %}
+                        <span class="meta-tag">📂 {{ article.subcategory.name }}</span>
+                    {% endif %}
+                </div>
+                
+                {% if article.summary %}
+                <p class="article-card-summary">{{ article.summary[:120] }}{{ '...' if article.summary|length > 120 }}</p>
+                {% endif %}
+                
+                <div class="article-card-footer">
+                    <span class="article-date">{{ article.updated_at.strftime('%b %d, %Y') }}</span>
+                    <div class="article-card-actions">
+                        {% if article.is_published %}
+                        <a href="{{ url_for('main.article', slug=article.slug) }}" 
+                           class="btn-icon" target="_blank" title="View">
+                            <span class="icon">👁️</span>
+                        </a>
+                        {% endif %}
+                        <a href="{{ url_for('admin.article_edit', id=article.id) }}" 
+                           class="btn-icon" title="Edit">
+                            <span class="icon">✏️</span>
+                        </a>
+                        <form method="POST" action="{{ url_for('admin.article_delete', id=article.id) }}" 
+                              style="display: inline; margin: 0;" 
+                              onsubmit="return confirm('Are you sure you want to delete this article?');">
+                            <button type="submit" class="btn-icon btn-icon-danger" title="Delete">
+                                <span class="icon">🗑️</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if articles.pages > 1 %}
+        <div class="pagination">
+            {% if articles.has_prev %}
+                <a href="{{ url_for('admin.articles', page=articles.prev_num) }}" class="btn btn-secondary">← Previous</a>
+            {% endif %}
+            
+            <span class="pagination-info">
+                Page {{ articles.page }} of {{ articles.pages }} ({{ articles.total }} articles)
+            </span>
+            
+            {% if articles.has_next %}
+                <a href="{{ url_for('admin.articles', page=articles.next_num) }}" class="btn btn-secondary">Next →</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">📄</div>
+            <h2>No articles yet</h2>
+            <p>Start creating content for your knowledge base</p>
+            <a href="{{ url_for('admin.article_new') }}" class="btn btn-primary">+ Create First Article</a>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-2xl);
+    padding-bottom: var(--spacing-lg);
+    border-bottom: 2px solid var(--border-color);
+    flex-wrap: wrap;
+    gap: var(--spacing-lg);
+}
+
+.page-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.admin-nav {
+    display: flex;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+}
+
+.articles-grid-admin {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+.article-card-admin {
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.article-card-admin:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--accent-blue);
+}
+
+.article-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+}
+
+.article-card-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    flex: 1;
+    line-height: 1.4;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.featured-icon {
+    font-size: 1rem;
+}
+
+.article-badges {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.status-badge {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+.status-published {
+    background: var(--success);
+    color: white;
+}
+
+.status-draft {
+    background: var(--warning);
+    color: white;
+}
+
+.article-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+}
+
+.meta-tag {
+    background: var(--tertiary-bg);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.article-card-summary {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+.article-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--border-color);
+}
+
+.article-date {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.article-card-actions {
+    display: flex;
+    gap: var(--spacing-xs);
+}
+
+.btn-icon {
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--tertiary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 1.25rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 42px;
+    min-height: 42px;
+}
+
+.btn-icon:hover {
+    background: var(--accent-blue);
+    border-color: var(--accent-blue);
+    transform: scale(1.1);
+}
+
+.btn-icon-danger:hover {
+    background: var(--error);
+    border-color: var(--error);
+}
+
+.empty-state {
+    text-align: center;
+    padding: var(--spacing-2xl);
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    margin-top: var(--spacing-xl);
+}
+
+.empty-icon {
+    font-size: 5rem;
+    margin-bottom: var(--spacing-lg);
+}
+
+.empty-state h2 {
+    font-size: 2rem;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.empty-state p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    margin-bottom: var(--spacing-xl);
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-xl);
+    padding: var(--spacing-lg);
+}
+
+.pagination-info {
+    color: var(--text-secondary);
+}
+
+@media (max-width: 768px) {
+    .articles-grid-admin {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}

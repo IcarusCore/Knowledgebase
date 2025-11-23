@@ -1,0 +1,525 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Edit' if article else 'New' }} Article - Admin{% endblock %}
+
+{% block content %}
+<div class="container article-form-container">
+    <div class="admin-header">
+        <h1 class="page-title">{{ 'Edit' if article else 'New' }} Article</h1>
+        <div class="admin-nav">
+            <a href="{{ url_for('admin.articles') }}" class="btn btn-secondary">← Back to Articles</a>
+            {% if article and article.is_published %}
+                <a href="{{ url_for('main.article', slug=article.slug) }}" 
+                   class="btn btn-secondary" target="_blank">View Article</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="form-container form-container-wide">
+        <form method="POST" class="admin-form" id="articleForm">
+            <div class="form-group">
+                <label for="title" class="form-label required">Article Title</label>
+                <input type="text" 
+                       id="title" 
+                       name="title" 
+                       class="form-input form-input-large" 
+                       value="{{ article.title if article else '' }}" 
+                       placeholder="Enter a descriptive title for your article"
+                       required 
+                       autofocus>
+            </div>
+
+            <div class="form-group">
+                <label for="summary" class="form-label">Summary</label>
+                <textarea id="summary" 
+                          name="summary" 
+                          class="form-input form-textarea-medium" 
+                          rows="4"
+                          placeholder="Brief summary shown in listings (optional but recommended)">{{ article.summary if article else '' }}</textarea>
+                <small class="form-help">Write a compelling summary to help readers understand what this article is about</small>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="category_id" class="form-label required">Category</label>
+                    <select id="category_id" name="category_id" class="form-input form-select-large" required>
+                        <option value="">-- Select a category --</option>
+                        {% for category in categories %}
+                            <option value="{{ category.id }}" 
+                                    data-subcategories="{{ category.subcategories.count() }}"
+                                    {% if article and article.category_id == category.id %}selected{% endif %}>
+                                {{ category.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="subcategory_id" class="form-label">Subcategory</label>
+                    <select id="subcategory_id" name="subcategory_id" class="form-input form-select-large">
+                        <option value="">-- Optional --</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="content" class="form-label required">Content</label>
+                <div class="editor-toolbar">
+                    <button type="button" class="editor-btn" onclick="insertMarkdown('**', '**')" title="Bold">
+                        <strong>B</strong>
+                    </button>
+                    <button type="button" class="editor-btn" onclick="insertMarkdown('*', '*')" title="Italic">
+                        <em>I</em>
+                    </button>
+                    <button type="button" class="editor-btn" onclick="insertMarkdown('[', '](url)')" title="Link">
+                        🔗
+                    </button>
+                    <button type="button" class="editor-btn" onclick="insertMarkdown('\n## ', '')" title="Heading">
+                        H2
+                    </button>
+                    <button type="button" class="editor-btn" onclick="insertMarkdown('\n### ', '')" title="Subheading">
+                        H3
+                    </button>
+                    <button type="button" class="editor-btn" onclick="insertMarkdown('\n- ', '')" title="List">
+                        •
+                    </button>
+                    <button type="button" class="editor-btn" onclick="insertMarkdown('\n```\n', '\n```')" title="Code Block">
+                        { }
+                    </button>
+                    <button type="button" class="editor-btn" onclick="insertMarkdown('\n> ', '')" title="Quote">
+                        "
+                    </button>
+                </div>
+                <textarea id="content" 
+                          name="content" 
+                          class="form-input editor-textarea" 
+                          rows="30" 
+                          placeholder="Write your article content here using Markdown formatting..."
+                          required>{{ article.content if article else '' }}</textarea>
+                <small class="form-help">Supports Markdown formatting - use the toolbar buttons above for quick formatting</small>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Tags</label>
+                <div class="tags-selection">
+                    {% if all_tags %}
+                        {% for tag in all_tags %}
+                        <label class="tag-checkbox">
+                            <input type="checkbox" 
+                                   name="tags" 
+                                   value="{{ tag.id }}"
+                                   {% if article and tag in article.tags %}checked{% endif %}>
+                            <span class="tag-badge" style="background-color: {{ tag.color }};">
+                                {{ tag.name }}
+                            </span>
+                        </label>
+                        {% endfor %}
+                    {% else %}
+                        <p class="no-tags-message">
+                            No tags available. <a href="{{ url_for('admin.tag_new') }}" target="_blank">Create tags</a> to organize your articles.
+                        </p>
+                    {% endif %}
+                </div>
+                <small class="form-help">Select tags to categorize and improve searchability of this article</small>
+            </div>
+
+            <div class="form-row form-row-checkboxes">
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" 
+                               name="is_published" 
+                               {% if article and article.is_published %}checked{% endif %}>
+                        <span>
+                            <strong>Published</strong>
+                            <small>Make this article visible to the public</small>
+                        </span>
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" 
+                               name="is_featured" 
+                               {% if article and article.is_featured %}checked{% endif %}>
+                        <span>
+                            <strong>Featured</strong>
+                            <small>Show on homepage as featured article</small>
+                        </span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-large">
+                    {{ '💾 Update Article' if article else '✨ Create Article' }}
+                </button>
+                <a href="{{ url_for('admin.articles') }}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.article-form-container {
+    max-width: 1400px;
+    padding: var(--spacing-xl) var(--spacing-lg);
+}
+
+.form-container-wide {
+    max-width: 100%;
+    background: var(--secondary-bg);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-2xl);
+    margin-top: var(--spacing-xl);
+}
+
+.admin-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xl);
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.form-label {
+    font-weight: 700;
+    color: var(--text-primary);
+    font-size: 1rem;
+    margin-bottom: var(--spacing-xs);
+}
+
+.form-label.required::after {
+    content: ' *';
+    color: var(--error);
+}
+
+.form-input,
+.form-textarea,
+.form-select {
+    width: 100%;
+    padding: var(--spacing-md);
+    background: var(--tertiary-bg);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-family: inherit;
+    transition: all 0.3s;
+}
+
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+    background: var(--secondary-bg);
+}
+
+.form-input-large,
+.form-select-large {
+    font-size: 1.15rem;
+    padding: var(--spacing-md) var(--spacing-lg);
+    font-weight: 600;
+}
+
+.form-textarea-medium {
+    min-height: 120px;
+    font-size: 1rem;
+    line-height: 1.8;
+    resize: vertical;
+}
+
+textarea.form-input {
+    resize: vertical;
+    font-family: inherit;
+    line-height: 1.7;
+}
+
+.form-help {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-top: var(--spacing-xs);
+    display: block;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+.editor-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    margin-bottom: 0;
+    padding: var(--spacing-md);
+    background: var(--tertiary-bg);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    border-bottom: none;
+}
+
+.editor-btn {
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--secondary-bg);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 0.95rem;
+    font-weight: 600;
+    min-width: 46px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.editor-btn:hover {
+    background: var(--accent-blue);
+    border-color: var(--accent-blue);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.editor-btn:active {
+    transform: translateY(0);
+}
+
+.editor-textarea {
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    border-top: none !important;
+    font-family: 'Monaco', 'Menlo', 'Consolas', 'Courier New', monospace;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    min-height: 500px !important;
+    resize: vertical;
+    padding: var(--spacing-lg) !important;
+}
+
+.editor-textarea:focus {
+    border-top: none !important;
+}
+
+.form-row-checkboxes {
+    background: var(--tertiary-bg);
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-lg);
+    border: 2px solid var(--border-color);
+    display: flex;
+    gap: var(--spacing-xl);
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+    cursor: pointer;
+    color: var(--text-primary);
+    flex: 1;
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    transition: all 0.3s;
+}
+
+.checkbox-label:hover {
+    background: var(--secondary-bg);
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+    margin-top: 4px;
+    flex-shrink: 0;
+}
+
+.checkbox-label span {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.checkbox-label strong {
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+.checkbox-label small {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.tags-selection {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md);
+    background: var(--tertiary-bg);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    min-height: 60px;
+}
+
+.tag-checkbox {
+    cursor: pointer;
+    display: inline-block;
+}
+
+.tag-checkbox input[type="checkbox"] {
+    display: none;
+}
+
+.tag-badge {
+    display: inline-block;
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: var(--radius-md);
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 600;
+    opacity: 0.5;
+    transition: all 0.3s;
+    border: 2px solid transparent;
+}
+
+.tag-checkbox input[type="checkbox"]:checked + .tag-badge {
+    opacity: 1;
+    border-color: white;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+.tag-checkbox:hover .tag-badge {
+    opacity: 0.8;
+    transform: scale(1.02);
+}
+
+.no-tags-message {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin: var(--spacing-md);
+}
+
+.no-tags-message a {
+    color: var(--accent-blue-light);
+    text-decoration: underline;
+}
+
+.form-actions {
+    display: flex;
+    gap: var(--spacing-md);
+    padding-top: var(--spacing-lg);
+    border-top: 2px solid var(--border-color);
+    margin-top: var(--spacing-md);
+}
+
+.btn-large {
+    padding: var(--spacing-md) var(--spacing-xl);
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+@media (max-width: 968px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-row-checkboxes {
+        flex-direction: column;
+        gap: var(--spacing-md);
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .editor-toolbar {
+        padding: var(--spacing-sm);
+        gap: var(--spacing-xs);
+    }
+    
+    .editor-btn {
+        min-width: 42px;
+        padding: var(--spacing-xs) var(--spacing-sm);
+    }
+    
+    .editor-textarea {
+        min-height: 400px !important;
+    }
+}
+</style>
+
+<script>
+// Load subcategories when category changes
+document.getElementById('category_id').addEventListener('change', function() {
+    const categoryId = this.value;
+    const subcategorySelect = document.getElementById('subcategory_id');
+    
+    // Clear existing options
+    subcategorySelect.innerHTML = '<option value="">-- Optional --</option>';
+    
+    if (categoryId) {
+        // Fetch subcategories via API
+        fetch(`/admin/api/subcategories/${categoryId}`)
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(subcategory => {
+                    const option = document.createElement('option');
+                    option.value = subcategory.id;
+                    option.textContent = subcategory.name;
+                    subcategorySelect.appendChild(option);
+                });
+                
+                // Restore selected subcategory if editing
+                {% if article and article.subcategory_id %}
+                subcategorySelect.value = {{ article.subcategory_id }};
+                {% endif %}
+            })
+            .catch(error => console.error('Error loading subcategories:', error));
+    }
+});
+
+// Trigger on page load if editing
+{% if article %}
+document.getElementById('category_id').dispatchEvent(new Event('change'));
+{% endif %}
+
+// Markdown insertion helper
+function insertMarkdown(before, after) {
+    const textarea = document.getElementById('content');
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = textarea.value.substring(start, end);
+    const replacement = before + selectedText + after;
+    
+    textarea.value = textarea.value.substring(0, start) + replacement + textarea.value.substring(end);
+    
+    // Set cursor position
+    const newCursorPos = start + before.length + selectedText.length;
+    textarea.setSelectionRange(newCursorPos, newCursorPos);
+    textarea.focus();
+}
+
+// Keyboard shortcuts
+document.getElementById('content').addEventListener('keydown', function(e) {
+    if (e.ctrlKey || e.metaKey) {
+        if (e.key === 'b') {
+            e.preventDefault();
+            insertMarkdown('**', '**');
+        } else if (e.key === 'i') {
+            e.preventDefault();
+            insertMarkdown('*', '*');
+        }
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,277 @@
+{% extends "base.html" %}
+
+{% block title %}{% if query %}Search: {{ query }}{% else %}Search{% endif %} - Knowledge Base{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="search-header">
+        <h1 class="page-title">Search Results</h1>
+        {% if query %}
+            <p class="search-query">
+                Showing results for: <strong>"{{ query }}"</strong>
+                {% if articles.total %}
+                    <span class="search-count">({{ articles.total }} result{{ 's' if articles.total != 1 else '' }})</span>
+                {% endif %}
+            </p>
+        {% endif %}
+    </div>
+
+    <!-- Search Form -->
+    <div class="search-box">
+        <form action="{{ url_for('main.search') }}" method="get" class="search-form-large">
+            <input type="text" 
+                   name="q" 
+                   placeholder="Search the knowledge base..." 
+                   value="{{ query }}" 
+                   class="search-input-large"
+                   autofocus>
+            <button type="submit" class="search-btn-large">🔍 Search</button>
+        </form>
+    </div>
+
+    <!-- Search Results -->
+    {% if query %}
+        {% if articles.items %}
+            <div class="search-results">
+                {% for article in articles.items %}
+                    <div class="search-result-item">
+                        <a href="{{ url_for('main.article', slug=article.slug) }}" class="result-title">
+                            {{ article.title }}
+                        </a>
+                        <div class="result-meta">
+                            <span>{{ article.category.name }}</span>
+                            {% if article.subcategory %}
+                                <span>/ {{ article.subcategory.name }}</span>
+                            {% endif %}
+                            <span>• {{ article.created_at.strftime('%b %d, %Y') }}</span>
+                        </div>
+                        {% if article.summary %}
+                            <p class="result-summary">{{ article.summary }}</p>
+                        {% else %}
+                            <p class="result-summary">{{ article.content[:200] }}...</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if articles.pages > 1 %}
+            <div class="pagination">
+                {% if articles.has_prev %}
+                    <a href="{{ url_for('main.search', q=query, page=articles.prev_num) }}" 
+                       class="btn btn-secondary">← Previous</a>
+                {% endif %}
+                
+                <span class="pagination-info">
+                    Page {{ articles.page }} of {{ articles.pages }}
+                </span>
+                
+                {% if articles.has_next %}
+                    <a href="{{ url_for('main.search', q=query, page=articles.next_num) }}" 
+                       class="btn btn-secondary">Next →</a>
+                {% endif %}
+            </div>
+            {% endif %}
+        {% else %}
+            <div class="no-results">
+                <div class="no-results-icon">🔍</div>
+                <h2>No results found</h2>
+                <p>We couldn't find any articles matching "{{ query }}".</p>
+                <div class="search-tips">
+                    <h3>Search Tips:</h3>
+                    <ul>
+                        <li>Try different keywords</li>
+                        <li>Use more general terms</li>
+                        <li>Check your spelling</li>
+                        <li>Try fewer keywords</li>
+                    </ul>
+                </div>
+                <a href="{{ url_for('main.index') }}" class="btn btn-primary">← Back to Home</a>
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="search-prompt">
+            <div class="search-prompt-icon">🔍</div>
+            <h2>Search the Knowledge Base</h2>
+            <p>Enter keywords above to search through all articles</p>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+.search-header {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+}
+
+.search-query {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    margin-top: var(--spacing-sm);
+}
+
+.search-count {
+    color: var(--accent-blue-light);
+}
+
+.search-box {
+    max-width: 700px;
+    margin: 0 auto var(--spacing-2xl);
+}
+
+.search-form-large {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.search-input-large {
+    flex: 1;
+    padding: var(--spacing-md) var(--spacing-lg);
+    background: var(--secondary-bg);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    transition: all 0.3s;
+}
+
+.search-input-large:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+.search-btn-large {
+    padding: var(--spacing-md) var(--spacing-xl);
+    background: var(--accent-blue);
+    border: none;
+    border-radius: var(--radius-lg);
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.search-btn-large:hover {
+    background: var(--accent-blue-light);
+    box-shadow: var(--shadow-md);
+}
+
+.search-results {
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xl);
+}
+
+.search-result-item {
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    transition: all 0.3s;
+}
+
+.search-result-item:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--accent-blue);
+}
+
+.result-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--accent-blue-light);
+    text-decoration: none;
+    display: block;
+    margin-bottom: var(--spacing-sm);
+    transition: color 0.3s;
+}
+
+.result-title:hover {
+    color: var(--accent-blue);
+}
+
+.result-meta {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: var(--spacing-md);
+}
+
+.result-summary {
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.no-results,
+.search-prompt {
+    text-align: center;
+    padding: var(--spacing-2xl);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.no-results-icon,
+.search-prompt-icon {
+    font-size: 4rem;
+    margin-bottom: var(--spacing-lg);
+}
+
+.no-results h2,
+.search-prompt h2 {
+    font-size: 2rem;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-md);
+}
+
+.no-results p,
+.search-prompt p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    margin-bottom: var(--spacing-lg);
+}
+
+.search-tips {
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    margin: var(--spacing-xl) 0;
+    text-align: left;
+}
+
+.search-tips h3 {
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-md);
+}
+
+.search-tips ul {
+    list-style-position: inside;
+    color: var(--text-secondary);
+}
+
+.search-tips li {
+    margin-bottom: var(--spacing-sm);
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-2xl);
+    padding: var(--spacing-lg);
+}
+
+.pagination-info {
+    color: var(--text-secondary);
+}
+
+@media (max-width: 768px) {
+    .search-form-large {
+        flex-direction: column;
+    }
+}
+</style>
+{% endblock %}

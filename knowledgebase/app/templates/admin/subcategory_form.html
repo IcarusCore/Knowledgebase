@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Edit' if subcategory else 'New' }} Subcategory - Admin{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="admin-header">
+        <h1 class="page-title">{{ 'Edit' if subcategory else 'New' }} Subcategory</h1>
+        <div class="admin-nav">
+            <a href="{{ url_for('admin.subcategories') }}" class="btn btn-secondary">← Back to Subcategories</a>
+        </div>
+    </div>
+
+    <div class="form-container">
+        <form method="POST" class="admin-form">
+            <div class="form-group">
+                <label for="category_id" class="form-label required">Parent Category</label>
+                <select id="category_id" name="category_id" class="form-input form-select" required>
+                    <option value="">-- Select a category --</option>
+                    {% for category in categories %}
+                        <option value="{{ category.id }}" 
+                                {% if subcategory and subcategory.category_id == category.id %}selected{% endif %}>
+                            {{ category.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <small class="form-help">Select the parent category for this subcategory</small>
+            </div>
+
+            <div class="form-group">
+                <label for="name" class="form-label required">Subcategory Name</label>
+                <input type="text" 
+                       id="name" 
+                       name="name" 
+                       class="form-input" 
+                       value="{{ subcategory.name if subcategory else '' }}" 
+                       required>
+                <small class="form-help">The slug will be automatically generated from the name</small>
+            </div>
+
+            <div class="form-group">
+                <label for="description" class="form-label">Description</label>
+                <textarea id="description" 
+                          name="description" 
+                          class="form-input" 
+                          rows="4">{{ subcategory.description if subcategory else '' }}</textarea>
+                <small class="form-help">Brief description of this subcategory</small>
+            </div>
+
+            <div class="form-group">
+                <label for="order" class="form-label">Display Order</label>
+                <input type="number" 
+                       id="order" 
+                       name="order" 
+                       class="form-input" 
+                       value="{{ subcategory.order if subcategory else 0 }}" 
+                       min="0">
+                <small class="form-help">Lower numbers appear first (0 = highest priority)</small>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    {{ 'Update Subcategory' if subcategory else 'Create Subcategory' }}
+                </button>
+                <a href="{{ url_for('admin.subcategories') }}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-2xl);
+    padding-bottom: var(--spacing-lg);
+    border-bottom: 2px solid var(--border-color);
+    flex-wrap: wrap;
+    gap: var(--spacing-lg);
+}
+
+.page-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.admin-nav {
+    display: flex;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+}
+
+.form-container {
+    max-width: 800px;
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-2xl);
+    margin-top: var(--spacing-xl);
+}
+
+.admin-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xl);
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.form-label {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.form-label.required::after {
+    content: ' *';
+    color: var(--error);
+}
+
+.form-input,
+.form-textarea,
+.form-select {
+    width: 100%;
+    padding: var(--spacing-md);
+    background: var(--tertiary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-family: inherit;
+    transition: all 0.3s;
+}
+
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+textarea.form-input {
+    resize: vertical;
+    font-family: inherit;
+}
+
+.form-help {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: var(--spacing-md);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--border-color);
+}
+</style>
+{% endblock %}

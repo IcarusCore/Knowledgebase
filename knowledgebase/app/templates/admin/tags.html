@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Tags - Admin{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="admin-header">
+        <h1 class="page-title">Tags</h1>
+        <div class="admin-nav">
+            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">← Dashboard</a>
+            <a href="{{ url_for('admin.tag_new') }}" class="btn btn-primary">+ New Tag</a>
+        </div>
+    </div>
+
+    {% if tags %}
+        <div class="tags-grid">
+            {% for tag in tags %}
+            <div class="tag-card-admin">
+                <div class="tag-card-header">
+                    <div class="tag-preview" style="background-color: {{ tag.color }};">
+                        {{ tag.name }}
+                    </div>
+                    <span class="tag-article-count">{{ tag.articles|length }} article{{ 's' if tag.articles|length != 1 else '' }}</span>
+                </div>
+                
+                {% if tag.description %}
+                <p class="tag-card-description">{{ tag.description }}</p>
+                {% endif %}
+                
+                <div class="tag-card-actions">
+                    <a href="{{ url_for('main.tag', slug=tag.slug) }}" 
+                       class="btn-icon" target="_blank" title="View">
+                        <span class="icon">👁️</span>
+                    </a>
+                    <a href="{{ url_for('admin.tag_edit', id=tag.id) }}" 
+                       class="btn-icon" title="Edit">
+                        <span class="icon">✏️</span>
+                    </a>
+                    <form method="POST" action="{{ url_for('admin.tag_delete', id=tag.id) }}" 
+                          style="display: inline;" 
+                          onsubmit="return confirm('Are you sure you want to delete this tag?');">
+                        <button type="submit" class="btn-icon btn-icon-danger" title="Delete">
+                            <span class="icon">🗑️</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">🏷️</div>
+            <h2>No tags yet</h2>
+            <p>Create tags to organize and categorize your articles for better searchability</p>
+            <a href="{{ url_for('admin.tag_new') }}" class="btn btn-primary">+ Create First Tag</a>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-2xl);
+    padding-bottom: var(--spacing-lg);
+    border-bottom: 2px solid var(--border-color);
+    flex-wrap: wrap;
+    gap: var(--spacing-lg);
+}
+
+.page-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.admin-nav {
+    display: flex;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+}
+
+.tags-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+.tag-card-admin {
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.tag-card-admin:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--accent-blue);
+}
+
+.tag-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.tag-preview {
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: var(--radius-md);
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 600;
+    flex: 1;
+    text-align: center;
+}
+
+.tag-article-count {
+    background: var(--tertiary-bg);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.tag-card-description {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.tag-card-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+    justify-content: center;
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--border-color);
+}
+
+.btn-icon {
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--tertiary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 1.25rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 42px;
+    min-height: 42px;
+}
+
+.btn-icon:hover {
+    background: var(--accent-blue);
+    border-color: var(--accent-blue);
+    transform: scale(1.1);
+}
+
+.btn-icon-danger:hover {
+    background: var(--error);
+    border-color: var(--error);
+}
+
+.empty-state {
+    text-align: center;
+    padding: var(--spacing-2xl);
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    margin-top: var(--spacing-xl);
+}
+
+.empty-icon {
+    font-size: 5rem;
+    margin-bottom: var(--spacing-lg);
+}
+
+.empty-state h2 {
+    font-size: 2rem;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.empty-state p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    margin-bottom: var(--spacing-xl);
+}
+
+@media (max-width: 768px) {
+    .tags-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}

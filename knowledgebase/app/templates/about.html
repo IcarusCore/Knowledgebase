@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+
+{% block title %}About - Knowledge Base{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="about-container">
+        <h1 class="about-title">About This Knowledge Base</h1>
+        
+        <div class="about-section">
+            <h2>Welcome</h2>
+            <p>
+                This knowledge base is a comprehensive resource center designed to provide easy access to 
+                information, documentation, and guides. Built with a focus on usability and organization, 
+                this platform helps you find the information you need quickly and efficiently.
+            </p>
+        </div>
+
+        <div class="about-section">
+            <h2>Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🔍</div>
+                    <h3>Powerful Search</h3>
+                    <p>Find articles quickly with full-text search functionality</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">📁</div>
+                    <h3>Organized Categories</h3>
+                    <p>Content organized into categories and subcategories for easy navigation</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">📝</div>
+                    <h3>Rich Content</h3>
+                    <p>Articles with markdown formatting, code highlighting, and more</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🎨</div>
+                    <h3>Beautiful Design</h3>
+                    <p>Clean, modern interface with a comfortable dark theme</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <h3>Responsive</h3>
+                    <p>Works seamlessly on desktop, tablet, and mobile devices</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Fast & Efficient</h3>
+                    <p>Optimized for speed and performance</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="about-section">
+            <h2>Technology</h2>
+            <p>
+                This knowledge base is built with modern web technologies including:
+            </p>
+            <ul class="tech-list">
+                <li><strong>Python Flask</strong> - Web framework</li>
+                <li><strong>SQLite</strong> - Database</li>
+                <li><strong>Markdown</strong> - Content formatting</li>
+                <li><strong>Docker</strong> - Containerization</li>
+                <li><strong>Custom CSS</strong> - Beautiful blue dark theme</li>
+            </ul>
+        </div>
+
+        <div class="about-section">
+            <h2>Get Started</h2>
+            <p>
+                Browse the categories to find the information you need, or use the search bar at the top 
+                of any page to quickly locate specific articles. If you're an administrator, log in to 
+                manage content and keep the knowledge base up to date.
+            </p>
+            <div class="about-actions">
+                <a href="{{ url_for('main.index') }}" class="btn btn-primary">Browse Categories</a>
+                <a href="{{ url_for('main.search') }}" class="btn btn-secondary">Search Articles</a>
+            </div>
+        </div>
+
+        {% if current_user.is_authenticated %}
+        <div class="about-section admin-section">
+            <h2>Administration</h2>
+            <p>
+                You are currently logged in as an administrator. You have access to:
+            </p>
+            <ul class="admin-features">
+                <li>Create and manage categories</li>
+                <li>Organize subcategories</li>
+                <li>Write and publish articles</li>
+                <li>Feature important content</li>
+                <li>Manage all content from the admin dashboard</li>
+            </ul>
+            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-primary">Go to Admin Dashboard</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.about-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: var(--spacing-2xl) 0;
+}
+
+.about-title {
+    font-size: 3rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    text-align: center;
+    margin-bottom: var(--spacing-2xl);
+    background: linear-gradient(135deg, var(--accent-blue-light), var(--accent-blue));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.about-section {
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-2xl);
+    margin-bottom: var(--spacing-xl);
+}
+
+.about-section h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-lg);
+}
+
+.about-section p {
+    color: var(--text-secondary);
+    line-height: 1.8;
+    margin-bottom: var(--spacing-md);
+    font-size: 1.05rem;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-lg);
+    margin-top: var(--spacing-lg);
+}
+
+.feature-card {
+    background: var(--tertiary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg);
+    text-align: center;
+    transition: all 0.3s;
+}
+
+.feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--accent-blue);
+}
+
+.feature-icon {
+    font-size: 3rem;
+    margin-bottom: var(--spacing-md);
+}
+
+.feature-card h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.feature-card p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+.tech-list {
+    list-style-position: inside;
+    color: var(--text-secondary);
+    font-size: 1.05rem;
+    line-height: 2;
+}
+
+.tech-list strong {
+    color: var(--accent-blue-light);
+}
+
+.about-actions {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-xl);
+    flex-wrap: wrap;
+}
+
+.admin-section {
+    background: linear-gradient(135deg, var(--secondary-bg), var(--tertiary-bg));
+    border-color: var(--accent-blue);
+}
+
+.admin-features {
+    list-style-position: inside;
+    color: var(--text-secondary);
+    font-size: 1.05rem;
+    line-height: 2;
+    margin-bottom: var(--spacing-lg);
+}
+
+@media (max-width: 768px) {
+    .about-title {
+        font-size: 2rem;
+    }
+    
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .about-actions {
+        flex-direction: column;
+    }
+}
+</style>
+{% endblock %}

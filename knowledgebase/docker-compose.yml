@@ -1,0 +1,22 @@
+services:
+  knowledgebase:
+    build: .
+    container_name: knowledgebase-app
+    ports:
+      - "8888:8888"
+    volumes:
+      - kb_data:/app/instance
+    environment:
+      - FLASK_ENV=production
+      - SECRET_KEY=your-secret-key-change-this-in-production
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8888/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  kb_data:
+    driver: local

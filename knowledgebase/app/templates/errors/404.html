@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Page Not Found - Knowledge Base{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="error-container">
+        <div class="error-code">404</div>
+        <h1 class="error-title">Page Not Found</h1>
+        <p class="error-message">
+            The page you're looking for doesn't exist or has been moved.
+        </p>
+        
+        <div class="error-suggestions">
+            <h3>What you can do:</h3>
+            <ul>
+                <li>Check the URL for typos</li>
+                <li>Use the search bar to find what you're looking for</li>
+                <li>Browse the categories from the home page</li>
+                <li>Contact an administrator if you believe this is an error</li>
+            </ul>
+        </div>
+        
+        <div class="error-actions">
+            <a href="{{ url_for('main.index') }}" class="btn btn-primary">← Back to Home</a>
+            <a href="{{ url_for('main.search') }}" class="btn btn-secondary">🔍 Search</a>
+        </div>
+    </div>
+</div>
+
+<style>
+.error-container {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: var(--spacing-2xl) var(--spacing-lg);
+    text-align: center;
+}
+
+.error-code {
+    font-size: 8rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--accent-blue-light), var(--accent-blue));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    margin-bottom: var(--spacing-md);
+}
+
+.error-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-lg);
+}
+
+.error-message {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-2xl);
+    line-height: 1.6;
+}
+
+.error-suggestions {
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    margin-bottom: var(--spacing-2xl);
+    text-align: left;
+}
+
+.error-suggestions h3 {
+    color: var(--text-primary);
+    font-size: 1.25rem;
+    margin-bottom: var(--spacing-md);
+}
+
+.error-suggestions ul {
+    list-style-position: inside;
+    color: var(--text-secondary);
+    line-height: 2;
+}
+
+.error-actions {
+    display: flex;
+    gap: var(--spacing-md);
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+    .error-code {
+        font-size: 6rem;
+    }
+    
+    .error-title {
+        font-size: 2rem;
+    }
+    
+    .error-actions {
+        flex-direction: column;
+    }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,282 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Knowledge Base{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="admin-header">
+        <h1 class="page-title">Admin Dashboard</h1>
+        <div class="admin-nav">
+            <a href="{{ url_for('admin.categories') }}" class="btn btn-secondary">Categories</a>
+            <a href="{{ url_for('admin.subcategories') }}" class="btn btn-secondary">Subcategories</a>
+            <a href="{{ url_for('admin.tags') }}" class="btn btn-secondary">Tags</a>
+            <a href="{{ url_for('admin.articles') }}" class="btn btn-secondary">Articles</a>
+            <a href="{{ url_for('admin.article_new') }}" class="btn btn-primary">+ New Article</a>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">📁</div>
+            <div class="stat-content">
+                <div class="stat-value">{{ stats.total_categories }}</div>
+                <div class="stat-label">Categories</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">📂</div>
+            <div class="stat-content">
+                <div class="stat-value">{{ stats.total_subcategories }}</div>
+                <div class="stat-label">Subcategories</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">🏷️</div>
+            <div class="stat-content">
+                <div class="stat-value">{{ stats.total_tags }}</div>
+                <div class="stat-label">Tags</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">📄</div>
+            <div class="stat-content">
+                <div class="stat-value">{{ stats.total_articles }}</div>
+                <div class="stat-label">Total Articles</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">✅</div>
+            <div class="stat-content">
+                <div class="stat-value">{{ stats.published_articles }}</div>
+                <div class="stat-label">Published</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">📝</div>
+            <div class="stat-content">
+                <div class="stat-value">{{ stats.draft_articles }}</div>
+                <div class="stat-label">Drafts</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">⭐</div>
+            <div class="stat-content">
+                <div class="stat-value">{{ stats.featured_articles }}</div>
+                <div class="stat-label">Featured</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Articles -->
+    <div class="dashboard-section">
+        <h2 class="section-title">Recent Articles</h2>
+        
+        {% if recent_articles %}
+            <div class="admin-table-container">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th>Updated</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for article in recent_articles %}
+                        <tr>
+                            <td>
+                                <a href="{{ url_for('main.article', slug=article.slug) }}" 
+                                   class="article-link" target="_blank">
+                                    {{ article.title }}
+                                </a>
+                            </td>
+                            <td>{{ article.category.name }}</td>
+                            <td>
+                                <span class="badge badge-{{ 'success' if article.is_published else 'warning' }}">
+                                    {{ 'Published' if article.is_published else 'Draft' }}
+                                </span>
+                            </td>
+                            <td>{{ article.updated_at.strftime('%b %d, %Y') }}</td>
+                            <td>
+                                <a href="{{ url_for('admin.article_edit', id=article.id) }}" 
+                                   class="btn-small btn-primary">Edit</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <p>No articles yet.</p>
+                <a href="{{ url_for('admin.article_new') }}" class="btn btn-primary">Create First Article</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-2xl);
+    padding-bottom: var(--spacing-lg);
+    border-bottom: 2px solid var(--border-color);
+    flex-wrap: wrap;
+    gap: var(--spacing-lg);
+}
+
+.page-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.admin-nav {
+    display: flex;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-2xl);
+}
+
+.stat-card {
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    transition: all 0.3s;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--accent-blue);
+}
+
+.stat-icon {
+    font-size: 2.5rem;
+}
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--accent-blue-light);
+}
+
+.stat-label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.dashboard-section {
+    margin-bottom: var(--spacing-2xl);
+}
+
+.admin-table-container {
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-table th {
+    background: var(--tertiary-bg);
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-align: left;
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.admin-table td {
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+.admin-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.admin-table tbody tr:hover {
+    background: var(--tertiary-bg);
+}
+
+.article-link {
+    color: var(--accent-blue-light);
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.article-link:hover {
+    color: var(--accent-blue);
+}
+
+.badge {
+    display: inline-block;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.badge-success {
+    background: var(--success);
+    color: white;
+}
+
+.badge-warning {
+    background: var(--warning);
+    color: white;
+}
+
+.btn-small {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.85rem;
+}
+
+@media (max-width: 768px) {
+    .admin-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+    
+    .admin-table-container {
+        overflow-x: auto;
+    }
+}
+</style>
+{% endblock %}

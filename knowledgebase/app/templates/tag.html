@@ -1,0 +1,294 @@
+{% extends "base.html" %}
+
+{% block title %}{{ tag.name }} - Tags{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="tag-header">
+        <div class="tag-header-content">
+            <div class="tag-icon">🏷️</div>
+            <div>
+                <h1 class="tag-title">
+                    <span class="tag-badge-large" style="background-color: {{ tag.color }};">
+                        {{ tag.name }}
+                    </span>
+                </h1>
+                {% if tag.description %}
+                <p class="tag-description">{{ tag.description }}</p>
+                {% endif %}
+                <p class="tag-meta">{{ articles|length }} article{{ 's' if articles|length != 1 else '' }} with this tag</p>
+            </div>
+        </div>
+        <a href="{{ url_for('main.index') }}" class="btn btn-secondary">← Back to Home</a>
+    </div>
+
+    {% if articles %}
+        <div class="articles-grid">
+            {% for article in articles %}
+            <article class="article-card">
+                <div class="article-card-header">
+                    {% if article.is_featured %}
+                    <span class="featured-badge">⭐ Featured</span>
+                    {% endif %}
+                    <h2 class="article-card-title">
+                        <a href="{{ url_for('main.article', slug=article.slug) }}">
+                            {{ article.title }}
+                        </a>
+                    </h2>
+                </div>
+                
+                {% if article.summary %}
+                <p class="article-card-summary">{{ article.summary }}</p>
+                {% endif %}
+                
+                <div class="article-card-meta">
+                    <span class="meta-item">
+                        <span class="meta-icon">📁</span>
+                        <a href="{{ url_for('main.category', slug=article.category.slug) }}">
+                            {{ article.category.name }}
+                        </a>
+                    </span>
+                    {% if article.subcategory %}
+                    <span class="meta-item">
+                        <span class="meta-icon">📂</span>
+                        <a href="{{ url_for('main.subcategory', category_slug=article.category.slug, subcategory_slug=article.subcategory.slug) }}">
+                            {{ article.subcategory.name }}
+                        </a>
+                    </span>
+                    {% endif %}
+                    <span class="meta-item">
+                        <span class="meta-icon">📅</span>
+                        {{ article.created_at.strftime('%b %d, %Y') }}
+                    </span>
+                </div>
+
+                {% if article.tags %}
+                <div class="article-card-tags">
+                    {% for article_tag in article.tags %}
+                    <a href="{{ url_for('main.tag', slug=article_tag.slug) }}" 
+                       class="article-tag" 
+                       style="background-color: {{ article_tag.color }};"
+                       title="{{ article_tag.description or article_tag.name }}">
+                        {{ article_tag.name }}
+                    </a>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">📄</div>
+            <h2>No Articles Yet</h2>
+            <p>There are no published articles with this tag.</p>
+            <a href="{{ url_for('main.index') }}" class="btn btn-primary">Browse All Articles</a>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+.tag-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--spacing-xl);
+    margin-bottom: var(--spacing-2xl);
+    padding: var(--spacing-2xl);
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+}
+
+.tag-header-content {
+    display: flex;
+    gap: var(--spacing-lg);
+    align-items: flex-start;
+    flex: 1;
+}
+
+.tag-icon {
+    font-size: 3rem;
+}
+
+.tag-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin: 0 0 var(--spacing-sm) 0;
+}
+
+.tag-badge-large {
+    display: inline-block;
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border-radius: var(--radius-lg);
+    color: white;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.tag-description {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    margin: var(--spacing-sm) 0;
+    line-height: 1.6;
+}
+
+.tag-meta {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin: var(--spacing-xs) 0 0 0;
+}
+
+.articles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: var(--spacing-xl);
+}
+
+.article-card {
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    transition: all 0.3s;
+}
+
+.article-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--accent-blue);
+}
+
+.article-card-header {
+    margin-bottom: var(--spacing-md);
+}
+
+.featured-badge {
+    display: inline-block;
+    background: var(--warning);
+    color: white;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: var(--spacing-sm);
+}
+
+.article-card-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.article-card-title a {
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.article-card-title a:hover {
+    color: var(--accent-blue-light);
+}
+
+.article-card-summary {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: var(--spacing-md) 0;
+}
+
+.article-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md) 0;
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+    margin: var(--spacing-md) 0;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.meta-item a {
+    color: var(--accent-blue-light);
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.meta-item a:hover {
+    color: var(--accent-blue);
+    text-decoration: underline;
+}
+
+.meta-icon {
+    font-size: 1rem;
+}
+
+.article-card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-md);
+}
+
+.article-tag {
+    display: inline-block;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    color: white;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.article-tag:hover {
+    transform: scale(1.05);
+    box-shadow: var(--shadow-md);
+    opacity: 0.9;
+}
+
+.empty-state {
+    text-align: center;
+    padding: var(--spacing-2xl);
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    margin-top: var(--spacing-xl);
+}
+
+.empty-icon {
+    font-size: 5rem;
+    margin-bottom: var(--spacing-lg);
+}
+
+.empty-state h2 {
+    font-size: 2rem;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.empty-state p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    margin-bottom: var(--spacing-xl);
+}
+
+@media (max-width: 768px) {
+    .tag-header {
+        flex-direction: column;
+    }
+    
+    .articles-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}

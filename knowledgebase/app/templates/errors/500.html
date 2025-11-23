@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}Server Error - Knowledge Base{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="error-container">
+        <div class="error-code">500</div>
+        <h1 class="error-title">Internal Server Error</h1>
+        <p class="error-message">
+            Something went wrong on the server. We're sorry for the inconvenience.
+        </p>
+        
+        <div class="error-suggestions">
+            <h3>What happened:</h3>
+            <p>The server encountered an unexpected condition that prevented it from fulfilling your request.</p>
+            
+            <h3>What you can do:</h3>
+            <ul>
+                <li>Try refreshing the page</li>
+                <li>Go back and try again</li>
+                <li>Return to the home page</li>
+                <li>If the problem persists, contact an administrator</li>
+            </ul>
+        </div>
+        
+        <div class="error-actions">
+            <a href="javascript:history.back()" class="btn btn-secondary">← Go Back</a>
+            <a href="{{ url_for('main.index') }}" class="btn btn-primary">🏠 Home</a>
+        </div>
+        
+        {% if current_user.is_authenticated %}
+        <div class="admin-info">
+            <p><strong>Administrator Note:</strong> Check the application logs for more details about this error.</p>
+            <code>docker compose logs -f</code>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.error-container {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: var(--spacing-2xl) var(--spacing-lg);
+    text-align: center;
+}
+
+.error-code {
+    font-size: 8rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--error), #dc2626);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    margin-bottom: var(--spacing-md);
+}
+
+.error-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-lg);
+}
+
+.error-message {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-2xl);
+    line-height: 1.6;
+}
+
+.error-suggestions {
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    margin-bottom: var(--spacing-2xl);
+    text-align: left;
+}
+
+.error-suggestions h3 {
+    color: var(--text-primary);
+    font-size: 1.25rem;
+    margin-bottom: var(--spacing-md);
+}
+
+.error-suggestions p {
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-lg);
+    line-height: 1.6;
+}
+
+.error-suggestions ul {
+    list-style-position: inside;
+    color: var(--text-secondary);
+    line-height: 2;
+}
+
+.error-actions {
+    display: flex;
+    gap: var(--spacing-md);
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.admin-info {
+    background: var(--tertiary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg);
+    margin-top: var(--spacing-xl);
+    text-align: left;
+}
+
+.admin-info p {
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.admin-info code {
+    display: block;
+    background: var(--primary-bg);
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    color: var(--accent-blue-light);
+    font-family: 'Monaco', 'Courier New', monospace;
+}
+
+@media (max-width: 768px) {
+    .error-code {
+        font-size: 6rem;
+    }
+    
+    .error-title {
+        font-size: 2rem;
+    }
+    
+    .error-actions {
+        flex-direction: column;
+    }
+}
+</style>
+{% endblock %}

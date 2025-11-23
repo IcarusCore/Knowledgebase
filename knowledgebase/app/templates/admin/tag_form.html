@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Edit' if tag else 'New' }} Tag - Admin{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="admin-header">
+        <h1 class="page-title">{{ 'Edit' if tag else 'New' }} Tag</h1>
+        <div class="admin-nav">
+            <a href="{{ url_for('admin.tags') }}" class="btn btn-secondary">← Back to Tags</a>
+        </div>
+    </div>
+
+    <div class="form-container">
+        <form method="POST" class="admin-form">
+            <div class="form-group">
+                <label for="name" class="form-label required">Tag Name</label>
+                <input type="text" 
+                       id="name" 
+                       name="name" 
+                       class="form-input" 
+                       value="{{ tag.name if tag else '' }}" 
+                       required 
+                       autofocus
+                       placeholder="e.g. Python, Tutorial, API">
+                <small class="form-help">Short, descriptive tag name</small>
+            </div>
+
+            <div class="form-group">
+                <label for="description" class="form-label">Description</label>
+                <textarea id="description" 
+                          name="description" 
+                          class="form-input" 
+                          rows="3"
+                          placeholder="Brief description of what this tag represents">{{ tag.description if tag else '' }}</textarea>
+                <small class="form-help">Optional description to help others understand the tag's purpose</small>
+            </div>
+
+            <div class="form-group">
+                <label for="color" class="form-label">Tag Color</label>
+                <div class="color-picker-wrapper">
+                    <input type="color" 
+                           id="color" 
+                           name="color" 
+                           class="color-input" 
+                           value="{{ tag.color if tag else '#2563eb' }}">
+                    <div class="color-preview">
+                        <span class="tag-example" id="tagPreview" style="background-color: {{ tag.color if tag else '#2563eb' }};">
+                            {{ tag.name if tag else 'Preview' }}
+                        </span>
+                    </div>
+                </div>
+                <small class="form-help">Choose a color for this tag (will be displayed on articles)</small>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    {{ 'Update Tag' if tag else 'Create Tag' }}
+                </button>
+                <a href="{{ url_for('admin.tags') }}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-2xl);
+    padding-bottom: var(--spacing-lg);
+    border-bottom: 2px solid var(--border-color);
+    flex-wrap: wrap;
+    gap: var(--spacing-lg);
+}
+
+.page-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.admin-nav {
+    display: flex;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+}
+
+.form-container {
+    max-width: 800px;
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-2xl);
+    margin-top: var(--spacing-xl);
+}
+
+.admin-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xl);
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.form-label {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.form-label.required::after {
+    content: ' *';
+    color: var(--error);
+}
+
+.form-input,
+.form-textarea,
+.form-select {
+    width: 100%;
+    padding: var(--spacing-md);
+    background: var(--tertiary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-family: inherit;
+    transition: all 0.3s;
+}
+
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+textarea.form-input {
+    resize: vertical;
+    font-family: inherit;
+}
+
+.form-help {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.color-picker-wrapper {
+    display: flex;
+    gap: var(--spacing-md);
+    align-items: center;
+}
+
+.color-input {
+    width: 80px;
+    height: 50px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    background: var(--tertiary-bg);
+}
+
+.color-preview {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding: var(--spacing-md);
+    background: var(--tertiary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+}
+
+.tag-example {
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: var(--radius-md);
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.form-actions {
+    display: flex;
+    gap: var(--spacing-md);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--border-color);
+}
+</style>
+
+<script>
+// Live preview of tag color and name
+const colorInput = document.getElementById('color');
+const nameInput = document.getElementById('name');
+const tagPreview = document.getElementById('tagPreview');
+
+colorInput.addEventListener('input', function() {
+    tagPreview.style.backgroundColor = this.value;
+});
+
+nameInput.addEventListener('input', function() {
+    tagPreview.textContent = this.value || 'Preview';
+});
+</script>
+{% endblock %}
